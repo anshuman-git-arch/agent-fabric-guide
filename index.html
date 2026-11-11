@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuleSoft Agent Fabric — Customer Guide</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cyan:   #06d6ff;
+    --purple: #a78bfa;
+    --amber:  #fbbf24;
+    --blue:   #60a5fa;
+    --green:  #34d399;
+    --violet: #c084fc;
+    --sky:    #38bdf8;
+    --bg:     #050a14;
+    --surface: rgba(255,255,255,0.04);
+    --border:  rgba(255,255,255,0.08);
+    --text:    #e2e8f0;
+    --muted:   #94a3b8;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  /* ── Canvas ── */
+  #canvas {
+    position: fixed; inset: 0;
+    z-index: 0; pointer-events: none;
+    opacity: .45;
+  }
+
+  /* ── Scene container ── */
+  #scenes {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex;
+    transition: transform .65s cubic-bezier(.77,0,.18,1);
+  }
+
+  .scene {
+    min-width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 60px 80px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Nav ── */
+  #nav {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex; align-items: center; gap: 20px;
+  }
+
+  .nav-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(12px);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,.14); transform: scale(1.1); }
+  .nav-btn:disabled { opacity: .25; cursor: default; transform: none; }
+
+  #dots { display: flex; gap: 8px; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .25s, transform .25s;
+  }
+  .dot.active { background: var(--cyan); transform: scale(1.4); }
+
+  #counter {
+    position: fixed; top: 28px; right: 40px;
+    z-index: 10;
+    font-size: 13px; color: var(--muted);
+    letter-spacing: .06em;
+  }
+
+  /* ── Typography ── */
+  .tag {
+    display: inline-block;
+    padding: 4px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 { font-size: clamp(48px,6vw,88px); font-weight: 900; line-height: 1.05; letter-spacing: -.03em; }
+  h2 { font-size: clamp(36px,4.5vw,64px); font-weight: 800; line-height: 1.1; letter-spacing: -.025em; }
+  h3 { font-size: clamp(22px,2.5vw,32px); font-weight: 700; }
+  p  { font-size: clamp(14px,1.4vw,17px); line-height: 1.75; color: var(--muted); }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Cards ── */
+  .glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    backdrop-filter: blur(16px);
+  }
+
+  /* ── Pill badge ── */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 100px;
+    font-size: 13px; font-weight: 600;
+    border: 1px solid;
+  }
+
+  /* ──────────────────────────────────────────────
+     SCENE 1 — HERO
+  ────────────────────────────────────────────── */
+  #scene-hero { flex-direction: column; text-align: center; gap: 28px; }
+  #scene-hero .subtitle {
+    max-width: 600px; font-size: clamp(16px,1.6vw,20px);
+    line-height: 1.7; color: var(--muted);
+  }
+  .hero-logo {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 8px;
+  }
+  .hero-logo span {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    display: inline-block;
+  }
+  .hero-cta {
+    margin-top: 8px;
+    padding: 14px 40px; border-radius: 50px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    border: none; color: #000; font-weight: 800; font-size: 15px;
+    cursor: pointer; letter-spacing: .05em;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 0 40px rgba(6,214,255,.25);
+  }
+  .hero-cta:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(6,214,255,.4); }
+  .hero-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .hero-chip {
+    padding: 6px 18px; border-radius: 100px;
+    border: 1px solid var(--border);
+    font-size: 13px; color: var(--muted);
+    backdrop-filter: blur(8px);
+  }
+
+  /* ──────────────────────────────────────────────
+     SCENE 2 — ARCHITECTURE OVERVIEW
+  ────────────────────────────────────────────── */
+  #scene-arch { gap: 60px; }
+  #scene-arch .left { flex: 1; }
+  #scene-arch .right { flex: 1.3; }
+
+  .arch-grid {
+    display: grid; gap: 12px;
+  }
+  .arch-row { display: flex; gap: 12px; }
+  .arch-card {
+    flex: 1; padding: 18px 20px; border-radius: 16px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .arch-card:hover { transform: translateY(-3px); }
+  .arch-card .icon { font-size: 24px; margin-bottom: 8px; }
+  .arch-card .name { font-size: 13px; font-weight: 700; }
+  .arch-card .desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* ──────────────────────────────────────────────
+     COMPONENT SCENES — shared layout
+  ────────────────────────────────────────────── */
+  .comp-scene { gap: 70px; }
+  .comp-left { flex: 1; }
+  .comp-right { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .comp-number {
+    font-size: 120px; font-weight: 900;
+    line-height: 1; letter-spacing: -.05em;
+    opacity: .07; margin-bottom: -30px; display: block;
+  }
+  .comp-bullets { list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .comp-bullets li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: clamp(13px,1.2vw,15px); color: var(--muted);
+  }
+  .comp-bullets li::before {
+    content: '→'; flex-shrink: 0;
+    font-weight: 700; margin-top: 1px;
+  }
+
+  /* ── Broker illustration ── */
+  .broker-box {
+    width: 340px; height: 340px;
+    border-radius: 24px;
+    border: 2px solid var(--cyan);
+    background: rgba(6,214,255,.05);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 60px rgba(6,214,255,.15), inset 0 0 40px rgba(6,214,255,.05);
+  }
+  .broker-core {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), #0891b2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 0 30px rgba(6,214,255,.5);
+    animation: pulse-cyan 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-cyan {
+    0%,100% { box-shadow: 0 0 30px rgba(6,214,255,.5); }
+    50%      { box-shadow: 0 0 60px rgba(6,214,255,.8); }
+  }
+  .orbit {
+    position: absolute; border-radius: 50%;
+    border: 1px dashed rgba(6,214,255,.25);
+    animation: spin linear infinite;
+  }
+  .orbit-1 { width: 170px; height: 170px; animation-duration: 8s; }
+  .orbit-2 { width: 270px; height: 270px; animation-duration: 14s; animation-direction: reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .orbit-dot {
+    position: absolute; width: 12px; height: 12px; border-radius: 50%;
+    top: -6px; left: calc(50% - 6px);
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  /* ── LLM illustration ── */
+  .llm-box {
+    width: 340px; height: 340px; border-radius: 24px;
+    border: 2px solid var(--purple);
+    background: rgba(167,139,250,.05);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    box-shadow: 0 0 60px rgba(167,139,250,.12), inset 0 0 40px rgba(167,139,250,.04);
+    overflow: hidden; position: relative; padding: 24px;
+  }
+  .llm-tokens { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .token {
+    padding: 4px 10px; border-radius: 6px;
+    background: rgba(167,139,250,.15); border: 1px solid rgba(167,139,250,.3);
+    font-size: 11px; font-weight: 600; color: var(--purple);
+    animation: token-appear .5s ease forwards;
+    opacity: 0;
+  }
+  @keyframes token-appear { to { opacity: 1; transform: none; } from { opacity: 0; transform: translateY(8px); } }
+  .llm-brain { font-size: 56px; margin-bottom: 6px; }
+  .llm-bar { width: 100%; height: 4px; border-radius: 2px; background: rgba(167,139,250,.15); overflow: hidden; }
+  .llm-bar-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--violet));
+    animation: llm-think 2.5s ease-in-out infinite;
+    transform-origin: left;
+  }
+  @keyframes llm-think { 0%,100%{width:20%} 50%{width:90%} }
+
+  /* ── Agent illustration ── */
+  .agents-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .agent-card-mini {
+    padding: 16px; border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(96,165,250,.06);
+    text-align: center;
+    transition: transform .2s;
+  }
+  .agent-card-mini:hover { transform: translateY(-4px); border-color: var(--blue); }
+  .agent-card-mini .emoji { font-size: 28px; }
+  .agent-card-mini .label { font-size: 11px; font-weight: 700; color: var(--blue); margin-top: 6px; }
+  .agent-card-mini .sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── MCP illustration ── */
+  .mcp-stack { display: flex; flex-direction: column; gap: 12px; width: 280px; }
+  .mcp-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 12px;
+    background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.2);
+    animation: slide-in .4s ease forwards; opacity: 0;
+  }
+  .mcp-row:nth-child(1) { animation-delay: .1s; }
+  .mcp-row:nth-child(2) { animation-delay: .25s; }
+  .mcp-row:nth-child(3) { animation-delay: .4s; }
+  .mcp-row:nth-child(4) { animation-delay: .55s; }
+  @keyframes slide-in { to{opacity:1;transform:none} from{opacity:0;transform:translateX(-16px)} }
+  .mcp-row .icon { font-size: 22px; }
+  .mcp-row .name { font-size: 12px; font-weight: 700; }
+  .mcp-row .type { font-size: 10px; color: var(--green); }
+
+  /* ── Gateway illustration ── */
+  .gateway-tower {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    width: 280px;
+  }
+  .gate-layer {
+    width: 100%; padding: 12px 20px;
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid var(--border);
+    font-size: 12px; font-weight: 600;
+    animation: fade-in .4s ease forwards; opacity: 0;
+  }
+  .gate-layer:first-child { border-radius: 14px 14px 0 0; }
+  .gate-layer:last-child  { border-radius: 0 0 14px 14px; }
+  .gate-layer:nth-child(1){animation-delay:.1s;background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3);}
+  .gate-layer:nth-child(2){animation-delay:.2s;background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.2);}
+  .gate-layer:nth-child(3){animation-delay:.3s;background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.2);}
+  .gate-layer:nth-child(4){animation-delay:.4s;background:rgba(251,191,36,.05);border-color:rgba(251,191,36,.2);}
+  .gate-layer:nth-child(5){animation-delay:.5s;background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3);}
+  @keyframes fade-in { to{opacity:1} }
+  .gate-check { color: var(--amber); font-size: 16px; }
+
+  /* ──────────────────────────────────────────────
+     SCENE — REQUEST JOURNEY
+  ────────────────────────────────────────────── */
+  #scene-journey { flex-direction: column; gap: 30px; width: 100%; }
+  #scene-journey h2 { text-align: center; }
+  .journey-track {
+    width: 100%; max-width: 1000px; margin: 0 auto;
+    position: relative;
+  }
+  .journey-line {
+    position: absolute; top: 36px; left: 60px; right: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple), var(--amber), var(--green));
+    border-radius: 2px;
+  }
+  .journey-steps {
+    display: flex; justify-content: space-between; position: relative; z-index: 1;
+  }
+  .jstep {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    cursor: default;
+  }
+  .jstep-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 3px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 800;
+    transition: transform .3s, border-color .3s, box-shadow .3s;
+  }
+  .jstep.lit .jstep-circle {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px currentColor;
+  }
+  .jstep-label { font-size: 11px; font-weight: 700; text-align: center; max-width: 90px; }
+  .jstep-desc  { font-size: 10px; color: var(--muted); text-align: center; max-width: 90px; }
+
+  .journey-detail {
+    padding: 20px 28px; border-radius: 16px; text-align: center;
+    min-height: 90px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    max-width: 700px; margin: 0 auto;
+    transition: opacity .3s;
+  }
+  .journey-detail h4 { font-size: 18px; font-weight: 700; }
+  .journey-detail p  { font-size: 13px; }
+
+  #journey-controls { display: flex; gap: 12px; justify-content: center; margin-top: 4px; }
+  .jbtn {
+    padding: 8px 24px; border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  .jbtn:hover { background: rgba(255,255,255,.1); }
+  #progress-bar {
+    width: 100%; max-width: 700px; height: 3px;
+    background: var(--border); border-radius: 2px;
+    overflow: hidden; margin: 0 auto;
+  }
+  #progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--cyan), var(--purple));
+    transition: width .5s ease;
+  }
+
+  /* ──────────────────────────────────────────────
+     SCENE — GOVERNANCE
+  ────────────────────────────────────────────── */
+  #scene-gov { gap: 60px; }
+  .policy-cards {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    flex: 1;
+  }
+  .policy-card {
+    padding: 20px 22px; border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform .2s, border-color .2s;
+    cursor: default;
+  }
+  .policy-card:hover { transform: translateY(-3px); border-color: var(--amber); }
+  .policy-card .ptag { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+  .policy-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .policy-card p  { font-size: 12px; }
+  .gov-right { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .shield-wrap { position: relative; width: 240px; height: 240px; }
+  .shield-svg { width: 100%; height: 100%; }
+
+  /* ──────────────────────────────────────────────
+     SCENE — BENEFITS
+  ────────────────────────────────────────────── */
+  #scene-benefits { flex-direction: column; gap: 40px; }
+  #scene-benefits h2 { text-align: center; }
+  .benefits-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+    width: 100%; max-width: 1000px; margin: 0 auto;
+  }
+  .benefit-card {
+    padding: 28px 24px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .benefit-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  .benefit-card .bicon { font-size: 36px; margin-bottom: 14px; }
+  .benefit-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .benefit-card p  { font-size: 13px; }
+
+  /* ──────────────────────────────────────────────
+     SCENE — SUMMARY
+  ────────────────────────────────────────────── */
+  #scene-summary { flex-direction: column; gap: 36px; text-align: center; }
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
+    max-width: 960px; margin: 0 auto;
+  }
+  .sum-card {
+    padding: 22px 16px; border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .sum-card .snum { font-size: 40px; font-weight: 900; }
+  .sum-card .slabel { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .sum-footer { font-size: 14px; color: var(--muted); max-width: 600px; }
+
+  /* ── Exchange/Registry scene ── */
+  .exchange-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .exc-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border-radius: 12px;
+    background: rgba(192,132,252,.06); border: 1px solid rgba(192,132,252,.2);
+  }
+  .exc-icon { font-size: 22px; }
+  .exc-name { font-size: 14px; font-weight: 700; }
+  .exc-sub  { font-size: 11px; color: var(--muted); }
+  .exc-badge { margin-left: auto; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(192,132,252,.2); color: var(--violet); }
+
+  /* Monitoring scene */
+  .monitor-right { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .metric-card {
+    padding: 16px 20px; border-radius: 14px;
+    background: rgba(56,189,248,.05); border: 1px solid rgba(56,189,248,.2);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .metric-val { font-size: 28px; font-weight: 900; color: var(--sky); }
+  .metric-label { font-size: 12px; color: var(--muted); }
+  .metric-bar { height: 4px; border-radius: 2px; background: rgba(56,189,248,.15); overflow: hidden; margin-top: 6px; }
+  .metric-bar-fill { height: 100%; border-radius: 2px; background: var(--sky); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .scene { padding: 40px 30px; }
+    .comp-scene { flex-direction: column; }
+    #scene-arch { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="counter">1 / 12</div>
+
+<div id="scenes">
+
+  <!-- ════════════ SCENE 1 — HERO ════════════ -->
+  <div class="scene" id="scene-hero">
+    <div class="hero-logo"><span></span> MuleSoft</div>
+    <h1 class="gradient-text">Agent Fabric</h1>
+    <p class="subtitle">The platform for building, orchestrating, and governing AI agent networks — where every agent is discoverable, every action is auditable, and every integration is enterprise-ready.</p>
+    <div class="hero-chips">
+      <span class="hero-chip">Multi-Agent Orchestration</span>
+      <span class="hero-chip">MCP Protocol</span>
+      <span class="hero-chip">A2A Communication</span>
+      <span class="hero-chip">Omni Gateway</span>
+      <span class="hero-chip">Anypoint Exchange</span>
+    </div>
+    <button class="hero-cta" onclick="goTo(1)">Explore Architecture →</button>
+  </div>
+
+  <!-- ════════════ SCENE 2 — ARCHITECTURE ════════════ -->
+  <div class="scene" id="scene-arch" style="display:flex">
+    <div class="left">
+      <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">Architecture</div>
+      <h2>The <span class="gradient-text">Six Pillars</span> of Agent Fabric</h2>
+      <p style="margin-top:16px">Agent Fabric is not a single product — it's a cohesive set of runtime components that work together so your AI agents can collaborate, reason, and act at enterprise scale.</p>
+      <p style="margin-top:12px">Click any component below to learn more, or use the navigation arrows to walk through each one in detail.</p>
+      <div style="margin-top:28px;display:flex;gap:10px;flex-wrap:wrap">
+        <span class="pill" style="border-color:rgba(6,214,255,.4);color:var(--cyan)">🔵 Agent Broker</span>
+        <span class="pill" style="border-color:rgba(167,139,250,.4);color:var(--purple)">🟣 LLM</span>
+        <span class="pill" style="border-color:rgba(96,165,250,.4);color:var(--blue)">🔷 Agents</span>
+        <span class="pill" style="border-color:rgba(52,211,153,.4);color:var(--green)">🟢 MCP Tools</span>
+        <span class="pill" style="border-color:rgba(251,191,36,.4);color:var(--amber)">🟡 Gateway</span>
+        <span class="pill" style="border-color:rgba(192,132,252,.4);color:var(--violet)">🔮 Exchange</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="arch-grid">
+        <div class="arch-row">
+          <div class="arch-card glass" style="border-color:rgba(6,214,255,.3)" onclick="goTo(2)">
+            <div class="icon">🤖</div>
+            <div class="name" style="color:var(--cyan)">Agent Broker</div>
+            <div class="desc">Orchestrator — routes tasks, calls LLM, delegates to agents</div>
+          </div>
+          <div class="arch-card glass" style="border-color:rgba(167,139,250,.3)" onclick="goTo(3)">
+            <div class="icon">🧠</div>
+            <div class="name" style="color:var(--purple)">Language Model</div>
+            <div class="desc">Reasoning engine — GPT, Claude, Bedrock</div>
+          </div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-card glass" style="border-color:rgba(96,165,250,.3)" onclick="goTo(4)">
+            <div class="icon">⚡</div>
+            <div class="name" style="color:var(--blue)">Specialist Agents</div>
+            <div class="desc">Remote sub-agents — A2A protocol, each a microservice</div>
+          </div>
+          <div class="arch-card glass" style="border-color:rgba(52,211,153,.3)" onclick="goTo(5)">
+            <div class="icon">🔧</div>
+            <div class="name" style="color:var(--green)">MCP Servers</div>
+            <div class="desc">Tool providers — APIs, databases, systems of record</div>
+          </div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-card glass" style="border-color:rgba(251,191,36,.3)" onclick="goTo(6)">
+            <div class="icon">🛡️</div>
+            <div class="name" style="color:var(--amber)">Omni Gateway</div>
+            <div class="desc">Policy enforcement — auth, rate-limit, audit on every call</div>
+          </div>
+          <div class="arch-card glass" style="border-color:rgba(192,132,252,.3)" onclick="goTo(7)">
+            <div class="icon">📦</div>
+            <div class="name" style="color:var(--violet)">Exchange + Monitoring</div>
+            <div class="desc">Registry + observability — discover, deploy, observe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 3 — AGENT BROKER ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--cyan)">01</span>
+      <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">Core Component</div>
+      <h2>Agent <span style="color:var(--cyan)">Broker</span></h2>
+      <p style="margin-top:14px">The Broker is the brain of the network. It receives the user's request, hands it to the LLM for reasoning, reads the LLM's tool-call decisions, and executes them — either calling an MCP tool directly or delegating to a specialist agent via A2A.</p>
+      <ul class="comp-bullets">
+        <li>Defined as a <strong>.agent script file</strong> — a simple, declarative instruction set you write</li>
+        <li>Runs inside a MuleSoft runtime on CloudHub 2.0</li>
+        <li>Maintains <strong>conversation context</strong> across multi-turn interactions</li>
+        <li>Communicates with sub-agents over <strong>A2A (Agent-to-Agent) protocol</strong></li>
+        <li>Each broker exposes an <strong>A2A card</strong> — its public skill manifest for discovery</li>
+        <li>Can run multiple brokers in one network for complex, parallel workflows</li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="broker-box">
+        <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+        <div class="orbit orbit-1"><div class="orbit-dot" style="background:var(--purple)"></div></div>
+        <div class="broker-core">🤖</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 4 — LLM ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--purple)">02</span>
+      <div class="tag" style="background:rgba(167,139,250,.12);color:var(--purple)">Core Component</div>
+      <h2>Language <span style="color:var(--purple)">Model</span></h2>
+      <p style="margin-top:14px">The LLM is the reasoning engine. It doesn't know about agents or tools directly — the Broker feeds it the user's message plus a list of available tools, and the LLM decides what to do next: answer directly, or call a tool.</p>
+      <ul class="comp-bullets">
+        <li>Supports <strong>any OpenAI-compatible endpoint</strong> — GPT, Claude, Bedrock, Mistral</li>
+        <li>Registered in agent-network.yaml as an <code>llm</code> in the registry</li>
+        <li>Connected via <strong>API key authentication</strong> (stored as secure CloudHub property)</li>
+        <li>Returns <strong>tool-call instructions</strong> which the Broker executes</li>
+        <li>Runs <strong>iteratively</strong> — tool results go back to LLM until it signals completion</li>
+        <li>Azure OpenAI: add <strong>Azure OpenAI Transcoding policy</strong> in API Manager</li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="llm-box">
+        <div class="llm-brain">🧠</div>
+        <div class="llm-tokens" id="token-container"></div>
+        <div style="width:100%">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-align:center">Reasoning…</div>
+          <div class="llm-bar"><div class="llm-bar-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 5 — SPECIALIST AGENTS ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--blue)">03</span>
+      <div class="tag" style="background:rgba(96,165,250,.12);color:var(--blue)">Core Component</div>
+      <h2>Specialist <span style="color:var(--blue)">Agents</span></h2>
+      <p style="margin-top:14px">While the Broker handles orchestration, Specialist Agents are autonomous sub-agents — each one an expert in a narrow domain. The Broker delegates to them like a manager assigning tasks to team members.</p>
+      <ul class="comp-bullets">
+        <li>Each specialist is a <strong>fully independent agent</strong> — its own LLM, its own tools</li>
+        <li>Communication uses the <strong>A2A (Agent-to-Agent) open protocol</strong> from Google</li>
+        <li>Each agent advertises its <strong>skill manifest</strong> (A2A card) so the Broker knows what it can do</li>
+        <li>Can be deployed anywhere — CloudHub, on-premise, third-party</li>
+        <li>Examples: Travel Agent, HR Compliance Agent, Fraud Detection Agent</li>
+        <li>Enables <strong>parallel execution</strong> — multiple agents working simultaneously</li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="agents-grid">
+        <div class="agent-card-mini"><div class="emoji">✈️</div><div class="label">Travel Agent</div><div class="sub">Flights, hotels, itineraries</div></div>
+        <div class="agent-card-mini"><div class="emoji">💰</div><div class="label">Finance Agent</div><div class="sub">Budgets, expenses, FX</div></div>
+        <div class="agent-card-mini"><div class="emoji">🏥</div><div class="label">HR Agent</div><div class="sub">Policies, onboarding</div></div>
+        <div class="agent-card-mini"><div class="emoji">🔍</div><div class="label">Search Agent</div><div class="sub">Research, summarize</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 6 — MCP SERVERS ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--green)">04</span>
+      <div class="tag" style="background:rgba(52,211,153,.12);color:var(--green)">Core Component</div>
+      <h2>MCP <span style="color:var(--green)">Servers</span></h2>
+      <p style="margin-top:14px">MCP (Model Context Protocol) is the standard way AI agents call external tools. An MCP Server wraps any API, database, or system — turning it into a structured tool an LLM can call by name with typed parameters.</p>
+      <ul class="comp-bullets">
+        <li>Open standard by Anthropic — works with any LLM</li>
+        <li>Transport: <strong>streamableHttp</strong> (deployed on CloudHub) or stdio (local)</li>
+        <li>Each tool has a <strong>typed schema</strong> — the LLM knows exactly what to pass</li>
+        <li>Tools: REST APIs, Salesforce, SAP, databases, file systems, web search</li>
+        <li>A MuleSoft Mule app can expose itself as an MCP Server — reuse existing integrations</li>
+        <li>Registered in agent-network.yaml under <code>mcps:</code></li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="mcp-stack">
+        <div class="mcp-row"><span class="icon">🌤️</span><div><div class="name">Weather MCP</div><div class="type">streamableHttp</div></div></div>
+        <div class="mcp-row"><span class="icon">📋</span><div><div class="name">Salesforce MCP</div><div class="type">streamableHttp</div></div></div>
+        <div class="mcp-row"><span class="icon">🗄️</span><div><div class="name">Database MCP</div><div class="type">streamableHttp</div></div></div>
+        <div class="mcp-row"><span class="icon">🔎</span><div><div class="name">Web Search MCP</div><div class="type">streamableHttp</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 7 — OMNI GATEWAY ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--amber)">05</span>
+      <div class="tag" style="background:rgba(251,191,36,.12);color:var(--amber)">Core Component</div>
+      <h2>Omni <span style="color:var(--amber)">Gateway</span></h2>
+      <p style="margin-top:14px">Every LLM call in Agent Fabric flows through the Omni Gateway — a managed AI proxy that enforces enterprise policies before any token reaches the model. Think of it as a security checkpoint with intelligence.</p>
+      <ul class="comp-bullets">
+        <li>Intercepts <strong>every request and response</strong> between broker and LLM</li>
+        <li>Enforces <strong>rate limiting</strong> per user, tenant, or API key</li>
+        <li>Applies <strong>content filters</strong> — blocks PII, prompt injection, toxic content</li>
+        <li>Full <strong>audit trail</strong> — every prompt and response is logged and traceable</li>
+        <li>Supports <strong>token budgets</strong> — cap spend per department or user</li>
+        <li>Managed via <strong>Anypoint API Manager</strong> — same toolchain as your other APIs</li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="gateway-tower">
+        <div class="gate-layer"><span class="gate-check">🛡️</span> Auth &amp; Client ID Enforcement</div>
+        <div class="gate-layer"><span class="gate-check">⚡</span> Rate Limiting &amp; Token Budgets</div>
+        <div class="gate-layer"><span class="gate-check">🔍</span> PII &amp; Content Scanning</div>
+        <div class="gate-layer"><span class="gate-check">🚫</span> Prompt Injection Detection</div>
+        <div class="gate-layer"><span class="gate-check">📝</span> Audit Logging &amp; Traceability</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 8 — EXCHANGE + MONITORING ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--violet)">06</span>
+      <div class="tag" style="background:rgba(192,132,252,.12);color:var(--violet)">Core Component</div>
+      <h2>Exchange &amp; <span style="color:var(--violet)">Monitoring</span></h2>
+      <p style="margin-top:14px">Anypoint Exchange is the universal registry — every agent, MCP server, LLM, and broker is published here. It's how teams discover, reuse, and govern AI assets across the organisation.</p>
+      <ul class="comp-bullets">
+        <li>Publish your <strong>agent-network.yaml</strong> to Exchange as a single versioned asset</li>
+        <li>All sub-assets (LLM, MCP, agents) get their own Exchange entries — independently discoverable</li>
+        <li>Anypoint Monitoring: <strong>real-time dashboards</strong> for token usage, latency, errors</li>
+        <li>Audit logs, tracing, and alerts built in — no extra instrumentation needed</li>
+        <li>Role-based access control — control who can consume which agents</li>
+      </ul>
+    </div>
+    <div class="comp-right" style="flex-direction:column;gap:12px;align-items:stretch">
+      <div class="exchange-list">
+        <div class="exc-item"><span class="exc-icon">📦</span><div><div class="exc-name">mule-weather-agent</div><div class="exc-sub">agentic-network · v1.0.0</div></div><span class="exc-badge">Published</span></div>
+        <div class="exc-item"><span class="exc-icon">🔧</span><div><div class="exc-name">llm-weatherBedrockLlm</div><div class="exc-sub">llm-provider · v1.0.0</div></div><span class="exc-badge">Published</span></div>
+        <div class="exc-item"><span class="exc-icon">🌐</span><div><div class="exc-name">mcp-weatherMcpServer</div><div class="exc-sub">mcp-server · v1.0.0</div></div><span class="exc-badge">Published</span></div>
+      </div>
+      <div class="monitor-right">
+        <div class="metric-card"><div><div class="metric-val">98.7%</div><div class="metric-label">Uptime</div><div class="metric-bar"><div class="metric-bar-fill" style="width:98.7%"></div></div></div></div>
+        <div class="metric-card"><div><div class="metric-val" style="font-size:20px">1.2s</div><div class="metric-label">Avg Response Time</div><div class="metric-bar"><div class="metric-bar-fill" style="width:40%"></div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 9 — REQUEST JOURNEY ════════════ -->
+  <div class="scene" id="scene-journey" style="display:flex">
+    <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">End-to-End Flow</div>
+    <h2>The <span class="gradient-text">Request Journey</span></h2>
+    <div class="journey-track">
+      <div class="journey-line"></div>
+      <div class="journey-steps" id="journey-steps"></div>
+    </div>
+    <div id="progress-bar"><div id="progress-fill" style="width:14.28%"></div></div>
+    <div class="journey-detail glass" id="journey-detail">
+      <h4>Select a step to see what happens</h4>
+      <p>Walk through the full lifecycle of a user request as it travels through Agent Fabric.</p>
+    </div>
+    <div id="journey-controls">
+      <button class="jbtn" id="j-prev">← Previous</button>
+      <button class="jbtn" id="j-next">Next →</button>
+      <button class="jbtn" id="j-auto">▶ Auto Play</button>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 10 — GOVERNANCE ════════════ -->
+  <div class="scene" id="scene-gov" style="display:flex">
+    <div style="flex:1">
+      <div class="tag" style="background:rgba(251,191,36,.12);color:var(--amber)">Enterprise Grade</div>
+      <h2>Governance &amp; <span style="color:var(--amber)">Compliance</span></h2>
+      <p style="margin-top:14px;margin-bottom:28px">Agent Fabric applies the same enterprise controls you already trust for APIs — extended to cover every AI interaction.</p>
+      <div class="policy-cards">
+        <div class="policy-card"><div class="ptag" style="color:var(--amber)">Identity</div><h4>Client ID &amp; OAuth</h4><p>Every agent caller must authenticate. No anonymous access to AI resources.</p></div>
+        <div class="policy-card"><div class="ptag" style="color:var(--amber)">Spend Control</div><h4>Token Budgets</h4><p>Cap token usage per department, user, or time window. Cost governance built in.</p></div>
+        <div class="policy-card"><div class="ptag" style="color:var(--amber)">Safety</div><h4>Content Filtering</h4><p>Block PII, hate speech, prompt injection, and other harmful content at the gateway.</p></div>
+        <div class="policy-card"><div class="ptag" style="color:var(--amber)">Compliance</div><h4>Audit Trail</h4><p>Every prompt, every tool call, every response — logged with full context for audit.</p></div>
+      </div>
+    </div>
+    <div class="gov-right">
+      <svg class="shield-svg" viewBox="0 0 240 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M120 10 L220 50 L220 160 Q220 230 120 270 Q20 230 20 160 L20 50 Z"
+          fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.4)" stroke-width="2"/>
+        <path d="M120 30 L200 62 L200 155 Q200 215 120 250 Q40 215 40 155 L40 62 Z"
+          fill="rgba(251,191,36,0.04)" stroke="rgba(251,191,36,0.2)" stroke-width="1.5"/>
+        <text x="120" y="155" text-anchor="middle" font-size="64" fill="rgba(251,191,36,0.8)">🛡️</text>
+        <text x="120" y="195" text-anchor="middle" font-size="11" fill="rgba(251,191,36,0.6)" font-weight="700" letter-spacing="2">PROTECTED</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 11 — BENEFITS ════════════ -->
+  <div class="scene" id="scene-benefits" style="display:flex">
+    <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">Why MuleSoft</div>
+    <h2>Why <span class="gradient-text">Agent Fabric</span> ?</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card"><div class="bicon">🔗</div><h4>Reuse Existing Integrations</h4><p>Any Mule application can become an MCP Server. Your 20 years of integration assets are now AI-ready tools — no rebuilding.</p></div>
+      <div class="benefit-card"><div class="bicon">🏢</div><h4>Enterprise-Grade from Day One</h4><p>Auth, rate-limiting, audit logging, and content filtering are built into the platform — not afterthoughts you bolt on later.</p></div>
+      <div class="benefit-card"><div class="bicon">🌐</div><h4>Open Protocols</h4><p>Built on MCP (Anthropic) and A2A (Google) — open standards that work with any LLM and any agent framework.</p></div>
+      <div class="benefit-card"><div class="bicon">📈</div><h4>Scales with Your Needs</h4><p>Start with one broker and one MCP server. Add specialist agents, new tools, and new brokers as your use cases grow.</p></div>
+      <div class="benefit-card"><div class="bicon">🔍</div><h4>Full Observability</h4><p>Anypoint Monitoring shows token usage, latency, error rates, and cost attribution across every agent in your network.</p></div>
+      <div class="benefit-card"><div class="bicon">🚀</div><h4>Deploy on Your Infrastructure</h4><p>CloudHub 2.0, Runtime Fabric, or on-premise. You control where your agents run and where your data stays.</p></div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 12 — SUMMARY ════════════ -->
+  <div class="scene" id="scene-summary" style="display:flex">
+    <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">Key Takeaways</div>
+    <h2>Agent Fabric in <span class="gradient-text">a Nutshell</span></h2>
+    <div class="summary-grid">
+      <div class="sum-card"><div class="snum" style="color:var(--cyan)">1</div><div class="slabel">Agent Broker orchestrates the workflow</div></div>
+      <div class="sum-card"><div class="snum" style="color:var(--purple)">2</div><div class="slabel">LLM reasons and decides what to call</div></div>
+      <div class="sum-card"><div class="snum" style="color:var(--green)">3</div><div class="slabel">MCP Servers connect agents to the world</div></div>
+      <div class="sum-card"><div class="snum" style="color:var(--amber)">4</div><div class="slabel">Omni Gateway governs every AI call</div></div>
+    </div>
+    <div style="max-width:700px;display:flex;flex-direction:column;align-items:center;gap:16px">
+      <p style="font-size:16px;text-align:center;color:var(--muted)">Agent Fabric gives you a <strong style="color:var(--text)">production-ready foundation</strong> for multi-agent AI — where every agent is governed, every action is auditable, and every integration you've already built becomes an AI capability.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <span class="pill" style="border-color:rgba(6,214,255,.3);color:var(--cyan)">Anypoint Exchange</span>
+        <span class="pill" style="border-color:rgba(251,191,36,.3);color:var(--amber)">API Manager</span>
+        <span class="pill" style="border-color:rgba(52,211,153,.3);color:var(--green)">CloudHub 2.0</span>
+        <span class="pill" style="border-color:rgba(167,139,250,.3);color:var(--purple)">Anypoint Monitoring</span>
+      </div>
+      <button class="hero-cta" onclick="goTo(0)" style="margin-top:8px">← Start Over</button>
+    </div>
+  </div>
+
+</div><!-- /scenes -->
+
+<!-- ── Navigation ── -->
+<div id="nav">
+  <button class="nav-btn" id="btn-prev" onclick="prev()">←</button>
+  <div id="dots"></div>
+  <button class="nav-btn" id="btn-next" onclick="next()">→</button>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────
+const TOTAL = 12;
+let current = 0;
+let journeyStep = 0;
+let journeyTimer = null;
+
+// ── Canvas particle network ────────────────────
+(function() {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function Particle() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H;
+    this.vx = (Math.random() - .5) * .5;
+    this.vy = (Math.random() - .5) * .5;
+    this.r  = Math.random() * 2 + 1;
+  }
+
+  for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(6,214,255,0.5)';
+      ctx.fill();
+
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 130) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(6,214,255,${.25 * (1 - dist/130)})`;
+          ctx.lineWidth = .6;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Scene navigation ───────────────────────────
+function goTo(n) {
+  current = Math.max(0, Math.min(TOTAL - 1, n));
+  const scenes = document.getElementById('scenes');
+  scenes.style.transform = `translateX(${-current * 100}vw)`;
+  document.getElementById('counter').textContent = `${current+1} / ${TOTAL}`;
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').disabled = current === TOTAL - 1;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === current));
+}
+
+function next() { goTo(current + 1); }
+function prev() { goTo(current - 1); }
+
+// Build dot indicators
+const dotsEl = document.getElementById('dots');
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+document.getElementById('btn-prev').disabled = true;
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') next();
+  if (e.key === 'ArrowLeft') prev();
+  if (e.key === 'Escape') goTo(0);
+});
+
+// ── LLM token animation ─────────────────────────
+const tokens = ['Who','is','the','best','agent','?','→','Weather','tool','→','fetching','...','✓','Done'];
+const tokenContainer = document.getElementById('token-container');
+let ti = 0;
+setInterval(() => {
+  if (tokenContainer.children.length >= 14) tokenContainer.innerHTML = '';
+  const t = document.createElement('span');
+  t.className = 'token';
+  t.textContent = tokens[ti % tokens.length];
+  t.style.animationDelay = '0s';
+  tokenContainer.appendChild(t);
+  ti++;
+}, 600);
+
+// ── Journey scene ──────────────────────────────
+const JOURNEY_STEPS = [
+  { label: 'User', desc: 'Sends request', color: '#94a3b8', emoji: '👤',
+    title: '1. User Sends a Request',
+    detail: 'A user (or application) sends a natural-language request to the Agent Broker\'s A2A endpoint. This could come from a chat UI, a Slack bot, a REST API client — any HTTP client. The Broker accepts text/plain input by default.' },
+  { label: 'Gateway', desc: 'Policy check', color: '#fbbf24', emoji: '🛡️',
+    title: '2. Omni Gateway Enforces Policy',
+    detail: 'Before the Broker processes a single token, the Omni Gateway intercepts the call. It validates the client ID, checks rate limits, scans for prompt injection, and opens an audit log entry for this conversation.' },
+  { label: 'Broker', desc: 'Orchestrates', color: '#06d6ff', emoji: '🤖',
+    title: '3. Broker Starts the Loop',
+    detail: 'The Broker reads its .agent script and begins the agentic loop: it gathers the available tools (from MCP servers and sub-agents), formats the context, and sends the first request to the LLM.' },
+  { label: 'LLM', desc: 'Reasons', color: '#a78bfa', emoji: '🧠',
+    title: '4. LLM Reasons and Decides',
+    detail: 'The Language Model receives the user\'s message plus the list of available tools. It reasons about the best approach and returns either a direct answer or a tool-call instruction — specifying which tool to call and with what parameters.' },
+  { label: 'MCP Tool', desc: 'Executes', color: '#34d399', emoji: '🔧',
+    title: '5. MCP Tool Executes',
+    detail: 'The Broker calls the specified MCP Server tool (e.g., get_weather("London")). The MCP Server handles the actual work — calling an external API, querying a database, or running a function — and returns structured results.' },
+  { label: 'Broker', desc: 'Iterates', color: '#06d6ff', emoji: '🔄',
+    title: '6. Results Flow Back to LLM',
+    detail: 'The tool result is injected back into the conversation context and sent to the LLM again. The LLM now has the data it needs — it may call more tools, delegate to a specialist agent, or compose the final answer.' },
+  { label: 'Response', desc: 'Delivered', color: '#34d399', emoji: '✅',
+    title: '7. Final Response Delivered',
+    detail: 'The LLM signals completion with a final text response. The Broker streams it back to the user through the A2A endpoint. The Omni Gateway records the response in the audit log, token count is tracked, and the conversation is ready for the next turn.' }
+];
+
+const stepsEl = document.getElementById('journey-steps');
+JOURNEY_STEPS.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'jstep';
+  div.innerHTML = `
+    <div class="jstep-circle" style="color:${s.color}">${s.emoji}</div>
+    <div class="jstep-label" style="color:${s.color}">${s.label}</div>
+    <div class="jstep-desc">${s.desc}</div>`;
+  div.onclick = () => showJourneyStep(i);
+  stepsEl.appendChild(div);
+});
+
+function showJourneyStep(i) {
+  journeyStep = i;
+  const s = JOURNEY_STEPS[i];
+  const steps = document.querySelectorAll('.jstep');
+  steps.forEach((el, idx) => {
+    el.classList.toggle('lit', idx <= i);
+    el.querySelector('.jstep-circle').style.borderColor = idx <= i ? JOURNEY_STEPS[idx].color : 'var(--border)';
+  });
+  const detail = document.getElementById('journey-detail');
+  detail.style.borderColor = `${s.color}44`;
+  detail.style.background = `rgba(${hexToRgb(s.color)},.05)`;
+  detail.innerHTML = `<h4 style="color:${s.color}">${s.title}</h4><p>${s.detail}</p>`;
+  document.getElementById('progress-fill').style.width = `${((i+1)/JOURNEY_STEPS.length)*100}%`;
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+showJourneyStep(0);
+
+let autoPlay = false;
+document.getElementById('j-next').onclick = () => { stopAuto(); showJourneyStep(Math.min(journeyStep+1, JOURNEY_STEPS.length-1)); };
+document.getElementById('j-prev').onclick = () => { stopAuto(); showJourneyStep(Math.max(journeyStep-1, 0)); };
+document.getElementById('j-auto').onclick = function() {
+  if (autoPlay) { stopAuto(); this.textContent = '▶ Auto Play'; }
+  else { this.textContent = '⏸ Pause'; startAuto(); }
+};
+
+function startAuto() {
+  autoPlay = true;
+  journeyTimer = setInterval(() => {
+    if (journeyStep < JOURNEY_STEPS.length - 1) showJourneyStep(journeyStep + 1);
+    else stopAuto();
+  }, 2200);
+}
+function stopAuto() {
+  autoPlay = false;
+  clearInterval(journeyTimer);
+  document.getElementById('j-auto').textContent = '▶ Auto Play';
+}
+
+// Initial state
+goTo(0);
+</script>
+</body>
+</html>
