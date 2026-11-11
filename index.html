@@ -574,6 +574,106 @@
   .metric-bar { height: 4px; border-radius: 2px; background: rgba(56,189,248,.15); overflow: hidden; margin-top: 6px; }
   .metric-bar-fill { height: 100%; border-radius: 2px; background: var(--sky); }
 
+  /* ──────────────────────────────────────────────
+     SCENE — INGRESS / EGRESS
+  ────────────────────────────────────────────── */
+  .ie-diagram {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    width: 100%; max-width: 480px;
+  }
+  .ie-node {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 22px; border-radius: 14px;
+    width: 100%; border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform .2s;
+  }
+  .ie-node:hover { transform: translateX(4px); }
+  .ie-node .ni { font-size: 22px; }
+  .ie-node .nn { font-size: 14px; font-weight: 700; }
+  .ie-node .ns { font-size: 11px; color: var(--muted); }
+  .ie-arrow {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 0; position: relative;
+  }
+  .ie-arrow .line {
+    width: 2px; height: 28px; border-radius: 1px;
+  }
+  .ie-arrow .tip {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+  .ie-arrow .tip.down { border-top: 8px solid; }
+  .ie-arrow .alabel {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; white-space: nowrap;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .ie-split {
+    display: flex; gap: 16px; width: 100%; justify-content: center; margin-top: 6px;
+  }
+  .ie-split-node {
+    flex: 1; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface);
+    text-align: center;
+  }
+  .ie-split-node .sni { font-size: 20px; }
+  .ie-split-node .snn { font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .ie-split-node .sns { font-size: 10px; color: var(--muted); }
+  .ie-gate {
+    width: 100%; padding: 10px 22px; border-radius: 10px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 700;
+    background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.35);
+    color: var(--amber); margin: 4px 0;
+  }
+
+  /* ──────────────────────────────────────────────
+     SCENE — DEPLOYMENT
+  ────────────────────────────────────────────── */
+  .deploy-steps {
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 1;
+  }
+  .deploy-step {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px 18px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    transition: border-color .2s;
+  }
+  .deploy-step:hover { border-color: var(--sky); }
+  .deploy-step .dnum {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(56,189,248,.15); border: 1px solid rgba(56,189,248,.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--sky);
+  }
+  .deploy-step .dtitle { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .deploy-step .ddesc  { font-size: 12px; color: var(--muted); }
+  .deploy-step .dwhere {
+    display: inline-block; margin-top: 6px;
+    padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+    background: rgba(56,189,248,.12); color: var(--sky); border: 1px solid rgba(56,189,248,.3);
+  }
+  .platform-cards {
+    display: flex; flex-direction: column; gap: 10px; flex: 1;
+  }
+  .platform-card {
+    padding: 14px 18px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .platform-card .pci { font-size: 22px; }
+  .platform-card .pcn { font-size: 13px; font-weight: 700; }
+  .platform-card .pcs { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .platform-card .pcpath {
+    margin-left: auto; font-size: 10px; font-weight: 600;
+    color: var(--sky); white-space: nowrap;
+  }
+
   /* ── Responsive ── */
   @media (max-width: 900px) {
     .scene { padding: 40px 30px; }
@@ -930,7 +1030,141 @@
     </div>
   </div>
 
-  <!-- ════════════ SCENE 12 — SUMMARY ════════════ -->
+  <!-- ════════════ SCENE 12 — INGRESS / EGRESS ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--sky)">07</span>
+      <div class="tag" style="background:rgba(56,189,248,.12);color:var(--sky)">Network Topology</div>
+      <h2>Ingress <span style="color:var(--sky)">&amp;</span> Egress</h2>
+      <p style="margin-top:14px">Two gateways control all traffic in Agent Fabric. <strong style="color:var(--sky)">Ingress</strong> is the front door — where external clients enter. <strong style="color:var(--amber)">Egress</strong> is the back door — where the broker reaches out to LLMs and tools. The Omni Gateway sits on the egress path, policing every outbound AI call.</p>
+      <ul class="comp-bullets" style="margin-top:20px">
+        <li><strong style="color:var(--sky)">Ingress URL</strong> — your broker's public CloudHub URL. This is what you call from Postman, your app, or a chat UI over A2A protocol</li>
+        <li><strong style="color:var(--amber)">Egress Gateway</strong> — internal hostname <code>agent-network-egress-gw:8082</code>. Only resolvable inside CloudHub 2.0. The broker uses this to reach every LLM and MCP proxy</li>
+        <li>You never call the MCP server or LLM proxy directly — all routing is through the egress gateway</li>
+        <li>If <code>agent-network-egress-gw</code> can't resolve → broker deployed to wrong environment (not CloudHub 2.0) or proxies not started</li>
+        <li>Each LLM and MCP connection gets its own <strong>proxy app</strong> — all must be Running before the broker starts</li>
+      </ul>
+    </div>
+    <div class="comp-right">
+      <div class="ie-diagram">
+        <!-- Client -->
+        <div class="ie-node" style="border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.06)">
+          <span class="ni">💻</span>
+          <div><div class="nn" style="color:var(--sky)">Client (Postman / App)</div><div class="ns">External — calls broker via A2A HTTP</div></div>
+        </div>
+        <!-- Ingress arrow -->
+        <div class="ie-arrow">
+          <div class="line" style="background:var(--sky)"></div>
+          <div class="tip down" style="border-top-color:var(--sky)"></div>
+          <span class="alabel" style="background:rgba(56,189,248,.15);color:var(--sky)">INGRESS</span>
+        </div>
+        <!-- Broker -->
+        <div class="ie-node" style="border-color:rgba(6,214,255,.4);background:rgba(6,214,255,.06)">
+          <span class="ni">🤖</span>
+          <div><div class="nn" style="color:var(--cyan)">Agent Broker</div><div class="ns">Orchestrates — calls LLM + tools</div></div>
+        </div>
+        <!-- Egress arrow -->
+        <div class="ie-arrow">
+          <div class="line" style="background:var(--amber)"></div>
+          <div class="tip down" style="border-top-color:var(--amber)"></div>
+          <span class="alabel" style="background:rgba(251,191,36,.15);color:var(--amber)">EGRESS</span>
+        </div>
+        <!-- Gateway -->
+        <div class="ie-gate">
+          <span>🛡️</span> Omni Gateway — agent-network-egress-gw:8082
+        </div>
+        <!-- Split -->
+        <div class="ie-split">
+          <div class="ie-split-node" style="border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06)">
+            <div class="sni">🧠</div>
+            <div class="snn" style="color:var(--purple)">LLM Proxy</div>
+            <div class="sns">Azure OpenAI / Bedrock</div>
+          </div>
+          <div class="ie-split-node" style="border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06)">
+            <div class="sni">🔧</div>
+            <div class="snn" style="color:var(--green)">MCP Proxy</div>
+            <div class="sns">Tools / APIs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 13 — DEPLOYMENT & PLATFORM ════════════ -->
+  <div class="scene comp-scene" style="display:flex">
+    <div class="comp-left">
+      <span class="comp-number" style="color:var(--sky)">08</span>
+      <div class="tag" style="background:rgba(56,189,248,.12);color:var(--sky)">After Deployment</div>
+      <h2>What Gets <span style="color:var(--sky)">Created</span></h2>
+      <p style="margin-top:14px">Publishing and deploying an agent network creates multiple assets and apps automatically across Anypoint Platform. Here's exactly what gets created and where to find it.</p>
+      <div class="deploy-steps" style="margin-top:20px">
+        <div class="deploy-step">
+          <div class="dnum">1</div>
+          <div>
+            <div class="dtitle">Publish to Exchange</div>
+            <div class="ddesc">Creates the main <code>agentic-network</code> asset plus individual sub-assets for each LLM provider and MCP server — all independently versioned and discoverable.</div>
+            <span class="dwhere">Anypoint Exchange → search your asset name</span>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <div class="dnum">2</div>
+          <div>
+            <div class="dtitle">LLM &amp; MCP Proxy Apps Deployed</div>
+            <div class="ddesc">Agent Fabric deploys a separate proxy application for each LLM connection and each MCP server. All must be in <strong>Running</strong> state before the broker can start.</div>
+            <span class="dwhere">Runtime Manager → Applications</span>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <div class="dnum">3</div>
+          <div>
+            <div class="dtitle">API Instances Created in API Manager</div>
+            <div class="ddesc">Each proxy gets its own managed API instance. This is where you apply the <strong>Azure OpenAI Transcoding</strong> policy to the LLM proxy, and where you enforce rate limits and auth.</div>
+            <span class="dwhere">API Manager → find llm-* and mcp-* instances</span>
+          </div>
+        </div>
+        <div class="deploy-step">
+          <div class="dnum">4</div>
+          <div>
+            <div class="dtitle">Broker App Deployed</div>
+            <div class="ddesc">The main broker application starts last. It tries to reach both proxies via the egress gateway at startup — if either is unreachable, it fails with "unreachable connections".</div>
+            <span class="dwhere">Runtime Manager → your-network-name</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="comp-right" style="flex-direction:column;gap:10px;align-items:stretch">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">Where to look in Anypoint Platform</p>
+      <div class="platform-cards">
+        <div class="platform-card">
+          <span class="pci">📦</span>
+          <div><div class="pcn">Anypoint Exchange</div><div class="pcs">All published assets — network, LLM, MCP sub-assets</div></div>
+          <span class="pcpath">Exchange → search asset</span>
+        </div>
+        <div class="platform-card">
+          <span class="pci">⚙️</span>
+          <div><div class="pcn">Runtime Manager</div><div class="pcs">3 apps: broker + LLM proxy + MCP proxy — all must be Running</div></div>
+          <span class="pcpath">Runtime Manager → Apps</span>
+        </div>
+        <div class="platform-card">
+          <span class="pci">🔒</span>
+          <div><div class="pcn">API Manager</div><div class="pcs">API instances for each proxy — apply Azure OpenAI Transcoding here</div></div>
+          <span class="pcpath">API Manager → APIs</span>
+        </div>
+        <div class="platform-card">
+          <span class="pci">📊</span>
+          <div><div class="pcn">Anypoint Monitoring</div><div class="pcs">Token usage, latency, errors per app — real-time dashboards</div></div>
+          <span class="pcpath">Monitoring → Dashboards</span>
+        </div>
+        <div class="platform-card">
+          <span class="pci">🔑</span>
+          <div><div class="pcn">CloudHub Properties</div><div class="pcs">Set azureOpenAi.apiKey as secure property at deploy time</div></div>
+          <span class="pcpath">Runtime Manager → Settings → Properties</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCENE 14 — SUMMARY ════════════ -->
   <div class="scene" id="scene-summary" style="display:flex">
     <div class="tag" style="background:rgba(6,214,255,.12);color:var(--cyan)">Key Takeaways</div>
     <h2>Agent Fabric in <span class="gradient-text">a Nutshell</span></h2>
@@ -963,7 +1197,7 @@
 
 <script>
 // ── State ──────────────────────────────────────
-const TOTAL = 12;
+const TOTAL = 14;
 let current = 0;
 let journeyStep = 0;
 let journeyTimer = null;
