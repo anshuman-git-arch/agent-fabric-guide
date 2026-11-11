@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anshuman-git-arch.github.io/agent-fabric-guide/sitemap.xml

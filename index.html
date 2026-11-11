@@ -1,9 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MuleSoft Agent Fabric — Customer Guide</title>
+
+<!-- ── Primary SEO ── -->
+<title>MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration</title>
+<meta name="description" content="Learn everything about MuleSoft Agent Fabric: the enterprise platform for building, orchestrating, and governing multi-agent AI systems using MCP, A2A protocol, Omni Gateway, and Anypoint Exchange.">
+<meta name="keywords" content="MuleSoft Agent Fabric, multi-agent AI, MCP server, A2A protocol, AI orchestration, Anypoint Platform, Omni Gateway, agent broker, LLM integration, enterprise AI, MuleSoft AI, agentic network, Model Context Protocol, Agent-to-Agent">
+<meta name="author" content="MuleSoft Agent Fabric Guide">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<link rel="canonical" href="https://anshuman-git-arch.github.io/agent-fabric-guide/">
+
+<!-- ── Open Graph (LinkedIn, Facebook, WhatsApp) ── -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration">
+<meta property="og:description" content="An interactive visual guide to MuleSoft Agent Fabric: how Agent Brokers, LLMs, MCP Servers, Omni Gateway, and Anypoint Exchange work together to power enterprise-grade AI agent networks.">
+<meta property="og:url" content="https://anshuman-git-arch.github.io/agent-fabric-guide/">
+<meta property="og:site_name" content="MuleSoft Agent Fabric Guide">
+<meta property="og:locale" content="en_US">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration">
+<meta name="twitter:description" content="Interactive guide: Agent Brokers, MCP Servers, A2A Protocol, Omni Gateway — everything you need to understand MuleSoft's AI agent platform.">
+
+<!-- ── JSON-LD Structured Data ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration",
+  "description": "A comprehensive interactive guide to MuleSoft Agent Fabric covering Agent Brokers, Language Models, MCP Servers, Specialist Agents, Omni Gateway, Anypoint Exchange, and enterprise governance for AI agent networks.",
+  "keywords": "MuleSoft Agent Fabric, multi-agent AI, MCP server, A2A protocol, AI orchestration, Anypoint Platform",
+  "url": "https://anshuman-git-arch.github.io/agent-fabric-guide/",
+  "inLanguage": "en-US",
+  "about": [
+    { "@type": "Thing", "name": "MuleSoft Agent Fabric" },
+    { "@type": "Thing", "name": "Multi-Agent AI Orchestration" },
+    { "@type": "Thing", "name": "Model Context Protocol (MCP)" },
+    { "@type": "Thing", "name": "Agent-to-Agent Protocol (A2A)" },
+    { "@type": "Thing", "name": "Anypoint Platform" }
+  ],
+  "mainEntity": {
+    "@type": "SoftwareApplication",
+    "name": "MuleSoft Agent Fabric",
+    "applicationCategory": "Enterprise AI Platform",
+    "operatingSystem": "CloudHub 2.0, Runtime Fabric",
+    "description": "MuleSoft Agent Fabric is an enterprise platform for building, orchestrating, and governing multi-agent AI systems on Anypoint Platform."
+  }
+}
+</script>
+
+<!-- ── FAQ Structured Data (boosts rich snippets) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is MuleSoft Agent Fabric?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MuleSoft Agent Fabric is an enterprise platform built on Anypoint Platform that enables organisations to build, orchestrate, and govern multi-agent AI networks. It uses the Agent Broker pattern, MCP (Model Context Protocol) for tool connectivity, A2A (Agent-to-Agent) protocol for agent communication, and the Omni Gateway for policy enforcement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is an Agent Broker in MuleSoft Agent Fabric?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An Agent Broker is the orchestrator in a MuleSoft Agent Fabric network. It receives user requests, queries an LLM for reasoning, executes tool calls via MCP servers, and delegates tasks to specialist agents via the A2A protocol. It is defined as a .agent script file and runs on CloudHub 2.0."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is MCP (Model Context Protocol) in MuleSoft?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MCP (Model Context Protocol) is an open standard by Anthropic that allows AI agents to call external tools and APIs in a structured way. In MuleSoft Agent Fabric, MCP Servers wrap existing Mule integrations, REST APIs, Salesforce, SAP, or databases — making them available as typed tools that any LLM can call by name."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Omni Gateway in MuleSoft Agent Fabric?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Omni Gateway is MuleSoft's managed AI proxy that sits between the Agent Broker and the LLM. It enforces enterprise policies including authentication, rate limiting, token budgets, content filtering, and audit logging on every AI request and response."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does A2A protocol work in Agent Fabric?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The A2A (Agent-to-Agent) protocol, developed by Google, enables autonomous agents to discover and communicate with each other. In MuleSoft Agent Fabric, each agent publishes an A2A card (a skill manifest) to Anypoint Exchange. The Agent Broker uses this to discover specialist agents and delegate tasks to them over HTTP."
+      }
+    }
+  ]
+}
+</script>
+
+<title>MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -485,6 +584,54 @@
 <body>
 
 <canvas id="canvas"></canvas>
+
+<!-- SEO static content — visible to crawlers, hidden visually -->
+<main id="seo-content" aria-label="MuleSoft Agent Fabric Guide Content" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden">
+  <article>
+    <h1>MuleSoft Agent Fabric — Complete Guide to Multi-Agent AI Orchestration</h1>
+    <p>MuleSoft Agent Fabric is the enterprise platform for building, orchestrating, and governing AI agent networks on Anypoint Platform. It combines Agent Brokers, Language Models (LLMs), MCP Servers, Specialist Agents, the Omni Gateway, and Anypoint Exchange into a cohesive production-ready system.</p>
+
+    <section>
+      <h2>What is the Agent Broker?</h2>
+      <p>The Agent Broker is the orchestrator in a MuleSoft Agent Fabric network. Defined as a .agent script file and deployed on CloudHub 2.0, it receives user requests, passes them to an LLM, reads tool-call decisions, and executes them — either calling an MCP tool directly or delegating to a specialist agent via the A2A (Agent-to-Agent) protocol.</p>
+    </section>
+
+    <section>
+      <h2>How does the Language Model (LLM) work in Agent Fabric?</h2>
+      <p>The LLM is the reasoning engine. The Broker feeds it the user's message and a list of available tools. The LLM returns tool-call instructions which the Broker executes. This loop repeats — tool results go back to the LLM — until the LLM composes a final answer. Agent Fabric supports any OpenAI-compatible endpoint: GPT, Claude, Amazon Bedrock, Azure OpenAI, and more.</p>
+    </section>
+
+    <section>
+      <h2>What are MCP Servers in MuleSoft Agent Fabric?</h2>
+      <p>MCP Servers implement the Model Context Protocol (MCP), an open standard by Anthropic. They wrap external APIs, databases, Salesforce, SAP, and other systems as structured tools with typed schemas. Any existing MuleSoft Mule application can be exposed as an MCP Server, making your existing integration assets immediately available as AI capabilities. Transport is via streamableHttp on CloudHub.</p>
+    </section>
+
+    <section>
+      <h2>What are Specialist Agents in Agent Fabric?</h2>
+      <p>Specialist Agents are autonomous sub-agents — each an expert in a narrow domain (Travel, Finance, HR, Search, etc.). The Agent Broker delegates tasks to them using the A2A (Agent-to-Agent) protocol developed by Google. Each specialist advertises its capabilities through an A2A card published to Anypoint Exchange. They can be deployed on CloudHub, on-premise, or as third-party services, and can run in parallel for complex workflows.</p>
+    </section>
+
+    <section>
+      <h2>What is the Omni Gateway?</h2>
+      <p>The Omni Gateway is a managed AI proxy that enforces enterprise policies on every LLM call in Agent Fabric. It provides authentication (Client ID, OAuth), rate limiting, token budgets per department or user, PII and content scanning, prompt injection detection, and full audit logging. It is managed via Anypoint API Manager using the same toolchain as your existing APIs.</p>
+    </section>
+
+    <section>
+      <h2>How does Anypoint Exchange fit into Agent Fabric?</h2>
+      <p>Anypoint Exchange is the universal registry for all Agent Fabric assets. Publishing an agent-network.yaml creates individually discoverable entries for the network, LLM providers, MCP servers, and agents. Teams across the organisation can discover, reuse, and govern AI assets through Exchange, with role-based access control and version management.</p>
+    </section>
+
+    <section>
+      <h2>How does a request flow through MuleSoft Agent Fabric?</h2>
+      <p>A user sends a request to the Broker's A2A endpoint. The Omni Gateway enforces policies. The Broker starts the agentic loop: it sends the message and available tools to the LLM. The LLM returns a tool-call instruction. The Broker executes the tool via MCP, injects the result back, and repeats until the LLM composes a final response. The response is streamed back and logged.</p>
+    </section>
+
+    <section>
+      <h2>Why choose MuleSoft Agent Fabric over other AI agent frameworks?</h2>
+      <p>MuleSoft Agent Fabric lets you reuse existing Mule integrations as MCP tools — no rebuilding. It provides enterprise-grade governance (auth, rate limiting, audit) built in from day one. It uses open protocols (MCP and A2A) that work with any LLM. It deploys on CloudHub 2.0, Runtime Fabric, or on-premise. Full observability through Anypoint Monitoring with token usage, latency, and cost attribution dashboards.</p>
+    </section>
+  </article>
+</main>
 
 <div id="counter">1 / 12</div>
 
